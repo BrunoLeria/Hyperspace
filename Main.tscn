@@ -1,0 +1,121 @@
+[gd_scene load_steps=22 format=2]
+
+[ext_resource path="res://Prefabs/PlayerShip.tscn" type="PackedScene" id=1]
+[ext_resource path="res://Scripts/Components/c_health.gd" type="Script" id=2]
+[ext_resource path="res://Prefabs/CameraRig.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Prefabs/BoidGroup.tscn" type="PackedScene" id=4]
+[ext_resource path="res://Scripts/Enemies/c_enemy_spawner.gd" type="Script" id=5]
+[ext_resource path="res://Prefabs/EnemyBasic.tscn" type="PackedScene" id=6]
+[ext_resource path="res://Prefabs/EnemyFastShot.tscn" type="PackedScene" id=7]
+[ext_resource path="res://Prefabs/EnemyHeavy.tscn" type="PackedScene" id=8]
+[ext_resource path="res://debug_pause.gd" type="Script" id=9]
+[ext_resource path="res://Prefabs/LevelCreator.tscn" type="PackedScene" id=10]
+[ext_resource path="res://debug_orbitals.gd" type="Script" id=11]
+[ext_resource path="res://Scripts/s_effect.gd" type="Script" id=12]
+[ext_resource path="res://Assets/Audio/Drum_Bass.ogg" type="AudioStream" id=13]
+[ext_resource path="res://Scripts/Components/c_music.gd" type="Script" id=14]
+[ext_resource path="res://Prefabs/Transition.tscn" type="PackedScene" id=15]
+
+[sub_resource type="BoxShape" id=1]
+extents = Vector3( 50.3974, 1, 19.9177 )
+
+[sub_resource type="Curve" id=2]
+_data = [ Vector2( 0, 0 ), 0.0, 1.0, 0, 1, Vector2( 1, 1 ), 1.0, 0.0, 1, 0 ]
+
+[sub_resource type="Curve" id=3]
+_data = [ Vector2( 0, 0 ), 0.0, 1.0, 0, 1, Vector2( 1, 1 ), 1.0, 0.0, 1, 0 ]
+
+[sub_resource type="Curve" id=4]
+_data = [ Vector2( 0, 1 ), 0.0, 0.0, 0, 1, Vector2( 1, 1 ), 0.0, 0.0, 1, 0 ]
+
+[sub_resource type="Curve" id=5]
+_data = [ Vector2( 0, 0 ), 0.0, 0.704054, 0, 1, Vector2( 0.285206, 0.2008 ), 0.0, 0.0, 0, 0, Vector2( 1, 0.4208 ), 0.307781, 0.0, 1, 0 ]
+
+[sub_resource type="Curve" id=6]
+_data = [ Vector2( 0, 0 ), 0.0, 0.0, 0, 1, Vector2( 0.302052, 0 ), 0.0, 0.0, 0, 0, Vector2( 1, 0.3328 ), 0.476826, 0.0, 1, 0 ]
+
+[node name="Main" type="Node"]
+pause_mode = 1
+
+[node name="Player Ship" parent="." instance=ExtResource( 1 )]
+editor/display_folded = true
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.54189, 0 )
+
+[node name="Projectile Blocker" type="Area" parent="Player Ship" groups=[
+"enemies",
+]]
+editor/display_folded = true
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 17.6179, 0 )
+collision_layer = 2048
+collision_mask = 33
+
+[node name="CollisionShape" type="CollisionShape" parent="Player Ship/Projectile Blocker"]
+shape = SubResource( 1 )
+
+[node name="Health" type="Node" parent="Player Ship/Projectile Blocker"]
+script = ExtResource( 2 )
+max_health = 1000
+emit_signals = false
+
+[node name="Camera Rig" parent="." instance=ExtResource( 3 )]
+
+[node name="Boid Group" parent="." instance=ExtResource( 4 )]
+
+[node name="Spawner" type="Node" parent="Boid Group"]
+script = ExtResource( 5 )
+max_time = 300.0
+difficulty_over_time = SubResource( 2 )
+count_over_difficulty = SubResource( 3 )
+enemy_prefabs = [ ExtResource( 6 ), ExtResource( 7 ), ExtResource( 8 ) ]
+enemy_spawn_chances = [ SubResource( 4 ), SubResource( 5 ), SubResource( 6 ) ]
+
+[node name="Spawn Timer" type="Timer" parent="Boid Group/Spawner"]
+wait_time = 0.3
+autostart = true
+
+[node name="Wave Timer" type="Timer" parent="Boid Group/Spawner"]
+wait_time = 8.0
+autostart = true
+
+[node name="Difficulty Timer" type="Timer" parent="Boid Group/Spawner"]
+wait_time = 10.0
+autostart = true
+
+[node name="First Enemy" type="Timer" parent="Boid Group/Spawner"]
+one_shot = true
+autostart = true
+
+[node name="Debug Pause" type="Node" parent="."]
+pause_mode = 2
+script = ExtResource( 9 )
+
+[node name="Level Creator" parent="." instance=ExtResource( 10 )]
+path_width_min = 16.0
+path_width_max = 32.0
+
+[node name="Debug Controls" type="Node" parent="."]
+script = ExtResource( 11 )
+
+[node name="Music" type="Spatial" parent="."]
+editor/display_folded = true
+script = ExtResource( 12 )
+random_rotation = false
+screen_shake_intensity = 0.0
+screen_shake_duration = 1.0
+pitch_min = 1.0
+pitch_max = 1.0
+editor_play = false
+
+[node name="Sounds" type="Spatial" parent="Music"]
+
+[node name="Music" type="AudioStreamPlayer" parent="Music/Sounds"]
+stream = ExtResource( 13 )
+autoplay = true
+
+[node name="BGM" type="Node" parent="Music"]
+script = ExtResource( 14 )
+
+[node name="Transition" parent="." instance=ExtResource( 15 )]
+
+[connection signal="die" from="Player Ship/Projectile Blocker/Health" to="Player Ship/Projectile Blocker/Health" method="reset"]
+[connection signal="timeout" from="Boid Group/Spawner/First Enemy" to="Boid Group/Spawner" method="spawn_one"]

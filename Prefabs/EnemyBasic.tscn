@@ -1,0 +1,292 @@
+[gd_scene load_steps=39 format=2]
+
+[ext_resource path="res://Assets/Models/ship8.obj" type="ArrayMesh" id=1]
+[ext_resource path="res://Assets/Materials/MAT_Enemy.tres" type="Material" id=2]
+[ext_resource path="res://Assets/Materials/MAT_Enemy3.tres" type="Material" id=3]
+[ext_resource path="res://Assets/Materials/MAT_Dark.tres" type="Material" id=4]
+[ext_resource path="res://Assets/Materials/MAT_SolidDark.tres" type="Material" id=5]
+[ext_resource path="res://Scripts/s_trail.gd" type="Script" id=6]
+[ext_resource path="res://Assets/Curves/v_trail.tres" type="Curve" id=7]
+[ext_resource path="res://Assets/Curves/g_dark.tres" type="Gradient" id=8]
+[ext_resource path="res://Assets/Materials/MAT_SolidMedium.tres" type="Material" id=9]
+[ext_resource path="res://Assets/Curves/g_medium.tres" type="Gradient" id=10]
+[ext_resource path="res://Scripts/Components/c_health.gd" type="Script" id=11]
+[ext_resource path="res://Scripts/Components/c_movement_base.gd" type="Script" id=12]
+[ext_resource path="res://Scripts/Enemies/c_boid.gd" type="Script" id=13]
+[ext_resource path="res://Scripts/Enemies/c_aim_at_player.gd" type="Script" id=14]
+[ext_resource path="res://Scripts/Components/c_object_pool_info.gd" type="Script" id=15]
+[ext_resource path="res://Scripts/Components/c_velocity_angle.gd" type="Script" id=16]
+[ext_resource path="res://Scripts/Enemies/c_projectile_fire.gd" type="Script" id=17]
+[ext_resource path="res://Scripts/s_effect.gd" type="Script" id=18]
+[ext_resource path="res://Assets/Materials/MAT_ExplosionSpike2.tres" type="Material" id=19]
+[ext_resource path="res://Assets/Effects/pm_EnemyHitSpike1.tres" type="Material" id=20]
+[ext_resource path="res://Assets/ParticlePlane.obj" type="ArrayMesh" id=21]
+[ext_resource path="res://Assets/Materials/MAT_ExplosionSpike.tres" type="Material" id=22]
+[ext_resource path="res://Assets/Materials/MAT_ExplosionCenter.tres" type="Material" id=23]
+[ext_resource path="res://Assets/Audio/Charge_3.wav" type="AudioStream" id=24]
+[ext_resource path="res://Scripts/Enemies/c_enemy_effects.gd" type="Script" id=25]
+[ext_resource path="res://Scripts/Components/c_effect_player.gd" type="Script" id=26]
+[ext_resource path="res://Assets/Curves/g_player_burn.tres" type="Gradient" id=27]
+[ext_resource path="res://Scripts/Components/c_score_giver.gd" type="Script" id=28]
+
+[sub_resource type="BoxShape" id=1]
+extents = Vector3( 1.14817, 0.835797, 0.747278 )
+
+[sub_resource type="SphereShape" id=2]
+radius = 7.0
+
+[sub_resource type="Curve" id=3]
+_data = [ Vector2( 0, 0 ), 0.0, 0.0, 0, 0, Vector2( 0.351136, 1 ), 0.0, 0.0, 0, 0, Vector2( 1, 0 ), -0.590537, 0.0, 0, 0 ]
+
+[sub_resource type="CurveTexture" id=4]
+curve = SubResource( 3 )
+
+[sub_resource type="ParticlesMaterial" id=5]
+emission_shape = 1
+emission_sphere_radius = 0.58
+spread = 180.0
+gravity = Vector3( 0, 0, 0 )
+initial_velocity = -3.2
+tangential_accel = -5.45
+damping = 5.31
+scale = 0.12
+scale_curve = SubResource( 4 )
+color = Color( 1, 0.341176, 0.972549, 1 )
+hue_variation = 0.14
+hue_variation_random = 1.0
+
+[sub_resource type="SphereMesh" id=6]
+radial_segments = 16
+rings = 16
+
+[sub_resource type="Curve" id=7]
+_data = [ Vector2( 0, 0 ), 0.0, 0.0, 0, 0, Vector2( 0.891551, 1 ), 0.0, 0.0, 0, 0, Vector2( 1, 0 ), -13.0204, 0.0, 0, 0 ]
+
+[sub_resource type="CurveTexture" id=8]
+curve = SubResource( 7 )
+
+[sub_resource type="ParticlesMaterial" id=9]
+spread = 180.0
+gravity = Vector3( 0, 0, 0 )
+scale = 0.57
+scale_curve = SubResource( 8 )
+
+[sub_resource type="SphereShape" id=10]
+radius = 0.53932
+
+[node name="Enemy" type="Spatial"]
+
+[node name="Model" type="Spatial" parent="."]
+
+[node name="Mesh" type="MeshInstance" parent="Model"]
+transform = Transform( -2, -3.01992e-007, -1.32005e-014, 0, -8.74228e-008, 2, -3.01992e-007, 2, 8.74228e-008, 0, 0, 0 )
+mesh = ExtResource( 1 )
+material/0 = ExtResource( 2 )
+material/1 = ExtResource( 3 )
+material/2 = ExtResource( 4 )
+material/3 = ExtResource( 2 )
+
+[node name="Trail" type="ImmediateGeometry" parent="Model"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.259362 )
+material_override = ExtResource( 5 )
+script = ExtResource( 6 )
+lifetime = 0.6
+width_base = 0.5
+shape = ExtResource( 7 )
+gradient = ExtResource( 8 )
+noise_size = 3.0
+width_noise_scale = 0.5
+offset_noise_scale = 0.4
+noise_seed = 942
+
+[node name="Burn" type="ImmediateGeometry" parent="Model"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.259362 )
+material_override = ExtResource( 9 )
+script = ExtResource( 6 )
+lifetime = 0.2
+shape = ExtResource( 7 )
+gradient = ExtResource( 10 )
+noise_size = 3.0
+width_noise_scale = 0.7
+offset_noise_scale = 0.4
+noise_seed = 942
+
+[node name="Hitbox" type="Area" parent="Model" groups=[
+"enemies",
+]]
+collision_layer = 32
+collision_mask = 8
+
+[node name="CollisionShape" type="CollisionShape" parent="Model/Hitbox"]
+shape = SubResource( 1 )
+
+[node name="Health" type="Node" parent="Model/Hitbox"]
+script = ExtResource( 11 )
+max_health = 3
+
+[node name="Obstacle Detection" type="Area" parent="."]
+editor/display_folded = true
+collision_layer = 32
+collision_mask = 2
+
+[node name="CollisionShape" type="CollisionShape" parent="Obstacle Detection"]
+shape = SubResource( 2 )
+
+[node name="Movement" type="Node" parent="."]
+script = ExtResource( 12 )
+
+[node name="Boid" type="Node" parent="."]
+script = ExtResource( 13 )
+speed = 8.0
+acceleration = 1.5
+separation_influence = 10.0
+cohesion_influence = 2.0
+target_influence = 1.5
+avoidance_speed = 8.0
+avoidance_acceleration = 2.0
+
+[node name="Aiming" type="Node" parent="."]
+script = ExtResource( 14 )
+rotation_speed = 1.0
+
+[node name="ObjectPoolInfo" type="Node" parent="."]
+script = ExtResource( 15 )
+
+[node name="Rotation Effects" type="Node" parent="."]
+script = ExtResource( 16 )
+max_roll = -28.0
+do_pitch = false
+
+[node name="Projectiles" type="Spatial" parent="."]
+script = ExtResource( 17 )
+spawn_reference_path = NodePath("../Model")
+projectile_scene_name = "EnemyBasicProjectile"
+shot_speed = 20.0
+shoot_delay = 2.5
+release_delay = 0.9
+
+[node name="Charge Effect" type="Spatial" parent="Projectiles"]
+script = ExtResource( 18 )
+pitch_min = 0.7
+pitch_max = 1.2
+
+[node name="Particles" type="Spatial" parent="Projectiles/Charge Effect"]
+editor/display_folded = true
+
+[node name="Bottom" type="Particles" parent="Projectiles/Charge Effect/Particles"]
+transform = Transform( 1, 0, 0, 0, -0.129369, -0.991596, 0, 0.991596, -0.129369, 0, -0.521428, 0.342307 )
+visible = false
+material_override = ExtResource( 19 )
+emitting = false
+amount = 1
+lifetime = 0.2
+process_material = ExtResource( 20 )
+draw_pass_1 = ExtResource( 21 )
+
+[node name="Right" type="Particles" parent="Projectiles/Charge Effect/Particles"]
+transform = Transform( 0.0871558, 1.49012e-008, 0.996195, 0.987823, -0.129369, -0.0864234, 0.128877, 0.991596, -0.0112753, 0, -0.521428, 0.342307 )
+visible = false
+material_override = ExtResource( 22 )
+emitting = false
+amount = 1
+lifetime = 0.2
+process_material = ExtResource( 20 )
+draw_pass_1 = ExtResource( 21 )
+
+[node name="Top" type="Particles" parent="Projectiles/Charge Effect/Particles"]
+transform = Transform( -0.965926, 5.96046e-008, 0.258819, 0.256644, -0.129369, 0.957809, 0.0334833, 0.991596, 0.124961, 0, -0.521428, 0.342307 )
+visible = false
+material_override = ExtResource( 19 )
+emitting = false
+amount = 1
+lifetime = 0.2
+process_material = ExtResource( 20 )
+draw_pass_1 = ExtResource( 21 )
+
+[node name="Left" type="Particles" parent="Projectiles/Charge Effect/Particles"]
+transform = Transform( -1.17167e-007, -5.93681e-008, -1, -0.991596, -0.129369, 1.23862e-007, -0.129369, 0.991596, -4.37114e-008, 0, -0.521428, 0.342307 )
+visible = false
+material_override = ExtResource( 22 )
+emitting = false
+amount = 1
+lifetime = 0.2
+process_material = ExtResource( 20 )
+draw_pass_1 = ExtResource( 21 )
+
+[node name="Particles" type="Particles" parent="Projectiles/Charge Effect/Particles"]
+transform = Transform( 1, 0, 0, 0, -4.37114e-008, -1, 0, 1, -4.37114e-008, 0, -0.637298, 0.317023 )
+material_override = ExtResource( 23 )
+emitting = false
+amount = 9
+lifetime = 0.5
+process_material = SubResource( 5 )
+draw_pass_1 = SubResource( 6 )
+
+[node name="Particles2" type="Particles" parent="Projectiles/Charge Effect/Particles"]
+transform = Transform( 1, 0, 0, 0, -4.37114e-008, -1, 0, 1, -4.37114e-008, 0, -0.748039, 0.317023 )
+material_override = ExtResource( 23 )
+emitting = false
+amount = 1
+process_material = SubResource( 9 )
+draw_pass_1 = SubResource( 6 )
+
+[node name="Sounds" type="Spatial" parent="Projectiles/Charge Effect"]
+
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="Projectiles/Charge Effect/Sounds"]
+stream = ExtResource( 24 )
+unit_db = -20.901
+unit_size = 100.0
+bus = "SFX"
+
+[node name="Effects" type="Spatial" parent="."]
+editor/display_folded = true
+script = ExtResource( 25 )
+internal_velocity_scale = Vector2( 1.2, 1 )
+external_velocity_add = Vector2( 20, 3 )
+
+[node name="Crash Area" type="Area" parent="Effects"]
+editor/display_folded = true
+monitoring = false
+monitorable = false
+collision_mask = 2
+
+[node name="CollisionShape" type="CollisionShape" parent="Effects/Crash Area"]
+shape = SubResource( 10 )
+
+[node name="Damage Effect" type="Node" parent="Effects"]
+script = ExtResource( 26 )
+effect_name = "Enemy Hit"
+
+[node name="Death Effect" type="Node" parent="Effects"]
+script = ExtResource( 26 )
+effect_name = "Enemy Die"
+
+[node name="Crash Effect" type="Node" parent="Effects"]
+script = ExtResource( 26 )
+effect_name = "Enemy Crash"
+
+[node name="Death Trail" type="ImmediateGeometry" parent="Effects"]
+script = ExtResource( 6 )
+shape = ExtResource( 7 )
+gradient = ExtResource( 27 )
+noise_size = 4.0
+random_seed = true
+emitting = false
+
+[node name="Done Timer" type="Timer" parent="Effects"]
+wait_time = 2.0
+one_shot = true
+
+[node name="Add Score" type="Node" parent="."]
+script = ExtResource( 28 )
+
+[connection signal="die" from="Model/Hitbox/Health" to="Effects" method="on_death"]
+[connection signal="die" from="Model/Hitbox/Health" to="Add Score" method="give_score"]
+[connection signal="take_damage" from="Model/Hitbox/Health" to="Effects" method="on_damage"]
+[connection signal="area_entered" from="Obstacle Detection" to="Boid" method="on_detect_collision"]
+[connection signal="area_exited" from="Obstacle Detection" to="Boid" method="on_clear_collision"]
+[connection signal="pool_instantiate" from="ObjectPoolInfo" to="Effects" method="reset"]
+[connection signal="pool_instantiate" from="ObjectPoolInfo" to="Model/Burn" method="reset_trail"]
+[connection signal="pool_instantiate" from="ObjectPoolInfo" to="Model/Trail" method="reset_trail"]
+[connection signal="pool_instantiate" from="ObjectPoolInfo" to="Model/Hitbox/Health" method="reset"]
+[connection signal="timeout" from="Effects/Done Timer" to="ObjectPoolInfo" method="set_pool_available"]
